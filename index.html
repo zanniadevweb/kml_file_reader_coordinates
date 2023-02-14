@@ -1,0 +1,255 @@
+<!DOCTYPE HTML>
+<html lang="en">
+	<head>
+		<title>Google Earth KML Coordinates Converter - Alexandre ZANNI</title>
+	</head>
+	<style>
+	body {
+	  font-family: 'Google Sans', sans-serif;
+	  margin: 40px
+	}
+
+	multi-input {
+	  display: inline-block;
+	  margin: 0 20px 20px 0;
+	}
+
+	button {
+	  background-color: #eee;
+	  border: 1px solid #ddd;
+	  font-size: 16px;
+	  height: 30px;
+	  margin: 0 10px 20px 0;
+	}
+
+	body > div {
+	  align-items: center;
+	  display: flex;
+	}
+
+	label {
+	  margin: 0 20px 20px 0;
+	}
+
+	p {
+	  text-align: center;
+	}
+
+	</style>
+
+		<h1>Récupérer les coordonnées X, Y (Degrés décimaux) d'un fichier .kml généré via Google Earth</h1>
+		</br></br>
+
+		<b>Fichier à charger ou texte à coller ?</b> <select onchange="hideFileOrTextInput()" id="inputFileOrText">
+																								<option value="0">Fichier</option>
+																								<option value="1">Texte</option>
+																							</select>
+		</br>
+		</br></br>
+		<button onclick="buildCoordinates()">GÉNÉRER COORDONNÉES</button>
+		</br></br>
+		<input id="fileInput" type="file" size="100" accept=".kml" onchange="readFile(this)">
+		<input id="tmpFileContent" type="text" size="100" style="display: none;">
+		</br></br>
+		<input id="textInput" type="text" placeholder="Coller ici le contenu d'un fichier kml..." size="100" style="display: none;">
+		</br></br>
+		<h2>Résultat :</h2>
+		<span id="spanResult" style="font-family: 'Arial'; font-size: 1em; width: 9999px"><h3>...</h3></span>
+		</br></br>
+
+			<script>
+			// TODO : Ca ne doit pas figurer au début du document: <?xml version='1.0' encoding='UTF-8'?>
+			var fixtureKML = `
+				<kml xmlns='http://www.opengis.net/kml/2.2' xmlns:gx='http://www.google.com/kml/ext/2.2' xmlns:kml='http://www.opengis.net/kml/2.2' xmlns:atom='http://www.w3.org/2005/Atom'>
+				<Document>
+					<name>Mes lieux préférés.kml</name>
+					<StyleMap id='m_ylw-pushpin'>
+						<Pair>
+							<key>normal</key>
+							<styleUrl>#s_ylw-pushpin</styleUrl>
+						</Pair>
+						<Pair>
+							<key>highlight</key>
+							<styleUrl>#s_ylw-pushpin_hl</styleUrl>
+						</Pair>
+					</StyleMap>
+					<Style id='s_ylw-pushpin_hl'>
+						<IconStyle>
+							<scale>1.3</scale>
+							<Icon>
+								<href>http://maps.google.com/mapfiles/kml/pushpin/ylw-pushpin.png</href>
+							</Icon>
+							<hotSpot x='20' y='2' xunits='pixels' yunits='pixels'/>
+						</IconStyle>
+					</Style>
+					<Style id='s_ylw-pushpin'>
+						<IconStyle>
+							<scale>1.1</scale>
+							<Icon>
+								<href>http://maps.google.com/mapfiles/kml/pushpin/ylw-pushpin.png</href>
+							</Icon>
+							<hotSpot x='20' y='2' xunits='pixels' yunits='pixels'/>
+						</IconStyle>
+					</Style>
+					<Folder>
+						<name>Mes lieux préférés</name>
+						<open>1</open>
+						<Style>
+							<ListStyle>
+								<listItemType>check</listItemType>
+								<ItemIcon>
+									<state>open</state>
+									<href>:/mysavedplaces_open.png</href>
+								</ItemIcon>
+								<ItemIcon>
+									<state>closed</state>
+									<href>:/mysavedplaces_closed.png</href>
+								</ItemIcon>
+								<bgColor>00ffffff</bgColor>
+								<maxSnippetLines>2</maxSnippetLines>
+							</ListStyle>
+						</Style>
+						<Placemark>
+							<name>1</name>
+							<Camera>
+								<longitude>35.99701196465072</longitude>
+								<latitude>35.23454889028171</latitude>
+								<altitude>124138.0803432923</altitude>
+								<heading>-22.51776447142607</heading>
+								<tilt>3.074765506406226</tilt>
+								<roll>-6.455260086377161</roll>
+								<gx:altitudeMode>relativeToSeaFloor</gx:altitudeMode>
+							</Camera>
+							<styleUrl>#m_ylw-pushpin</styleUrl>
+							<Point>
+								<gx:drawOrder>1</gx:drawOrder>
+								<coordinates>35.97997266170639,34.54270903706667,0</coordinates>
+							</Point>
+						</Placemark>
+						<Placemark>
+							<name>2</name>
+							<Camera>
+								<longitude>35.99701196465072</longitude>
+								<latitude>35.23454889028171</latitude>
+								<altitude>124138.0803432923</altitude>
+								<heading>-22.51776447142607</heading>
+								<tilt>3.074765506406226</tilt>
+								<roll>-6.455260086377161</roll>
+								<gx:altitudeMode>relativeToSeaFloor</gx:altitudeMode>
+							</Camera>
+							<styleUrl>#m_ylw-pushpin</styleUrl>
+							<Point>
+								<gx:drawOrder>1</gx:drawOrder>
+								<coordinates>35.86870068202914,34.93456823710807,0</coordinates>
+							</Point>
+						</Placemark>
+						<Placemark>
+							<name>3</name>
+							<Camera>
+								<longitude>35.99701196465072</longitude>
+								<latitude>35.23454889028171</latitude>
+								<altitude>124138.0803432923</altitude>
+								<heading>-22.51776447142607</heading>
+								<tilt>3.074765506406226</tilt>
+								<roll>-6.455260086377161</roll>
+								<gx:altitudeMode>relativeToSeaFloor</gx:altitudeMode>
+							</Camera>
+							<styleUrl>#m_ylw-pushpin</styleUrl>
+							<Point>
+								<gx:drawOrder>1</gx:drawOrder>
+								<coordinates>35.95376372239423,35.19725481841101,0</coordinates>
+							</Point>
+						</Placemark>
+					</Folder>
+				</Document>
+				</kml>
+			`;
+
+			function buildCoordinates(needPhpArray = false)
+			{
+				var inputFileOrText = document.getElementById('inputFileOrText').value;
+				var inputToRead = '';
+
+				if (inputFileOrText == 0) // FILE
+				{
+					var fileInput = document.getElementById('tmpFileContent').value;
+					inputToRead = fileInput;
+				} else if (inputFileOrText == 1) // TEXT
+				{
+					var textInput = document.getElementById('textInput').value;
+					inputToRead = textInput;
+				}
+
+				// console.log(fixtureKML);
+				parser = new DOMParser();
+				xmlDoc = parser.parseFromString(inputToRead,"text/xml");
+				var placeMarks = xmlDoc.getElementsByTagName("Placemark");
+				var placeMarksTag = '';
+				var htmlCollectionFirstElement = '';
+				var coordinatesTag = '';
+				var placeMarkCoordinates = [];
+				for (i=0; i < placeMarks.length; i++) {
+					var placeMarksTag = placeMarks[i].getElementsByTagName("Point")[0];
+					var placeMarksTagValue = placeMarksTag.getElementsByTagName("coordinates")[0].innerHTML;
+					if (!needPhpArray) { // Position de la Latitude et de la Longitude sont à inverser pour que ce soit dans le bon ordre.
+						var cleanCoordinatesValue = placeMarksTagValue.split(',')[1] + ',' + placeMarksTagValue.split(',')[0]
+					} else {
+						var cleanCoordinatesValue = '[' + placeMarksTagValue.split(',')[1] + ',' + placeMarksTagValue.split(',')[0] + '] '
+					}
+					placeMarkCoordinates.push(cleanCoordinatesValue);
+				}
+
+				if (!needPhpArray) {
+					document.getElementById('spanResult').innerHTML = placeMarkCoordinates.join('</br>');
+				} else {
+					document.getElementById('spanResult').innerHTML = placeMarkCoordinates.join(', ');
+				}
+			}
+
+			function readFile(input) {
+				var fileContent = '';
+				let file = input.files[0];
+
+				let reader = new FileReader();
+
+				reader.readAsText(file);
+
+				reader.onload = function() {
+					fileContent = reader.result
+					document.getElementById('tmpFileContent').value = fileContent;
+				};
+
+				reader.onerror = function() {
+					console.log(reader.error);
+				};
+			}
+
+			function hideFileOrTextInput()
+			{
+				var inputFileOrText = document.getElementById('inputFileOrText').value;
+				var fileInput = document.getElementById('fileInput');
+				var textInput = document.getElementById('textInput');
+				if (inputFileOrText == 0) // FILE
+				{
+					disableAndHideInputs(fileInput, false);
+					disableAndHideInputs(textInput);
+				} else if (inputFileOrText == 1) // TEXT
+				{
+					disableAndHideInputs(textInput, false);
+					disableAndHideInputs(fileInput);
+				}
+			}
+
+			function disableAndHideInputs(input, isToDisableAndHide = true) {
+				var currentInput = input;
+				if (isToDisableAndHide) { // CACHER
+						currentInput.style.display= 'none';
+				} else { // AFFICHER
+						currentInput.style.display= '';
+				}
+			}
+
+		</script>
+
+	</body>
+</html>
