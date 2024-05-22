@@ -46,7 +46,7 @@
 																							</select>
 		</br>
 		</br></br>
-		<button onclick="buildCoordinates()">GÉNÉRER COORDONNÉES</button>
+		<button onclick="buildCoordinates(true)">GÉNÉRER COORDONNÉES</button>
 		</br></br>
 		<input id="fileInput" type="file" size="100" accept=".kml" onchange="readFile(this)">
 		<input id="tmpFileContent" type="text" size="100" style="display: none;">
@@ -191,10 +191,12 @@
 				for (i=0; i < placeMarks.length; i++) {
 					var placeMarksTag = placeMarks[i].getElementsByTagName("Point")[0];
 					var placeMarksTagValue = placeMarksTag.getElementsByTagName("coordinates")[0].innerHTML;
+					var nameTag = placeMarks[i].getElementsByTagName("name")[0];
+					var nameTagValue = nameTag.innerHTML;
 					if (!needPhpArray) { // Position de la Latitude et de la Longitude sont à inverser pour que ce soit dans le bon ordre.
-						var cleanCoordinatesValue = placeMarksTagValue.split(',')[1] + ',' + placeMarksTagValue.split(',')[0]
+						var cleanCoordinatesValue = nameTagValue + ' : ' + placeMarksTagValue.split(',')[1] + ',' + placeMarksTagValue.split(',')[0]
 					} else {
-						var cleanCoordinatesValue = '[' + placeMarksTagValue.split(',')[1] + ',' + placeMarksTagValue.split(',')[0] + '] '
+						var cleanCoordinatesValue = nameTagValue + ' : ' + '[' + placeMarksTagValue.split(',')[1] + ',' + placeMarksTagValue.split(',')[0] + '] '
 					}
 					placeMarkCoordinates.push(cleanCoordinatesValue);
 				}
